@@ -5,10 +5,16 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import DetailsScreen from './DetailScreen';
 import Timer from './Timer'
+import Recorder from './Recorder'
 
 const Stack = createStackNavigator();
 
 export default function App() {
+
+  const goToHomeScreen = () => {
+    navigation.navigate('Home');
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator 
@@ -25,12 +31,24 @@ export default function App() {
           name="Timer"
           component={Timer}
           options={{ headerShown: false }}
+
+
+        />
+         <Stack.Screen
+          name="Recorder"
+          component={Recorder}
+          options={{ headerShown: false }}
+
+
         />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>
   );
 }
+
+
+
 
 function HomeScreen({ navigation }) {
   return (
@@ -39,6 +57,10 @@ function HomeScreen({ navigation }) {
       <Button
         title="Go to Timer Screen"
         onPress={() => navigation.navigate('Timer')}
+      />
+      <Button
+        title="Go to Recorder Screen"
+        onPress={() => navigation.navigate('Recorder')}
       />
     </View>
   );

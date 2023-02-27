@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import { Button } from 'react-native-elements';
+import { Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-const Timer = () => {
+
+
+const Timer = ({ }) => {
+
+  const navigation = useNavigation();
+
     const [time, setTime] = useState(10);
     const [isThreeMinutes, setIsThreeMinutes] = useState(false);
     const [isRunning, setIsRunning] = useState(false);
     const [isVisible, setIsVisible] = useState(true);
     const [counter, setCounter] = useState(0);
     const [words, setWords] = useState("");
+
   
     useEffect(() => {
       let interval;
@@ -40,19 +48,42 @@ const Timer = () => {
     };
   
     const handleReset = () => {
-      setTime(10);
-      setIsRunning(false);
-      setIsThreeMinutes(false);
-      setCounter(0);
-      setWords("");
+      Alert.alert(
+        'Confirm Exit',
+        'Are you sure you want to exit?',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Exit',
+            onPress: () => {
+              setTime(10);
+              setIsRunning(false);
+              setIsThreeMinutes(false);
+              setCounter(0);
+              setWords("");
+              navigation.navigate('Home'); // <--- navigate back to home screen
+
+
+
+            },
+            style: 'destructive',
+          },
+        ],
+        { cancelable: false }
+      );
     };
+
+  
   
     const formattedTime = `${Math.floor(time / 60)
       .toString()
       .padStart(2, '0')}:${(time % 60).toString().padStart(2, '0')}`;
   
     return (
-      <View style={[styles.container, { backgroundColor: words === 'Fight' ? 'green' : words === 'Rest' ? 'blue' : 'yellow' }]}>
+      <View style={[styles.container, { backgroundColor: words === 'Fight' ? '#90EE90' : words === 'Rest' ? 'red' : 'yellow' }]}>
         <View style={styles.timerContainer}>
           <Text style={[styles.timerText, words === "Fight" ? styles.fightText : words === "Rest" ? styles.restText : styles.warmupText, time === 0 ? styles.endText : null]}>{words ? words : 'Warmup'}</Text>
           <Text style={[styles.timerText, time === 0 ? styles.endText : null]}>{formattedTime}</Text>
@@ -64,7 +95,7 @@ const Timer = () => {
             buttonStyle={styles.button}
           />
           <Button
-            title='Restart'
+            title='Exit'
             onPress={handleReset}
             buttonStyle={styles.button}
           />
@@ -95,7 +126,7 @@ const styles = StyleSheet.create({
   },
   fightText: {
     color: 'black',
-    backgroundColor: 'green',
+    backgroundColor: '#90EE90',
   },
   restText: {
     color: 'black',
@@ -112,7 +143,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 10,
     paddingHorizontal: 20,
-    backgroundColor: 'blue',
+    backgroundColor: 'grey',
     marginVertical: 10,
   },
   counterText: {
