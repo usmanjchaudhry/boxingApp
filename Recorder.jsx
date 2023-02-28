@@ -1,120 +1,141 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Camera, CameraType } from 'expo-camera';
+import { StyleSheet, Text, View, Button, SafeAreaView } from 'react-native';
+import { useEffect, useState, useRef } from 'react';
+import { Camera } from 'expo-camera';
 import { Video } from 'expo-av';
+import { shareAsync } from 'expo-sharing';
 import * as MediaLibrary from 'expo-media-library';
+import { useNavigation } from '@react-navigation/native';
+import { Alert } from 'react-native';
+
+
 
 const Recorder = () => {
-  const [hasPermission, setHasPermission] = useState(null);
-  const [type, setType] = useState(CameraType.front);
+  const navigation = useNavigation();
+  let cameraRef = useRef();
+  const [hasCameraPermission, setHasCameraPermission] = useState();
+  const [hasMicrophonePermission, setHasMicrophonePermission] = useState();
+  const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState();
   const [isRecording, setIsRecording] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [videoSource, setVideoSource] = useState(null);
-  const cameraRef = useRef(null);
-  const videoRef = useRef(null);
+  const [video, setVideo] = useState();
+
+  const handleExit = () => {
+    Alert.alert(
+      'Confirm Exit',
+      'Are you sure you want to exit?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Exit',
+          onPress: () => {
+            navigation.navigate('Home'); // <--- navigate back to home screen
+
+
+
+          },
+          style: 'destructive',
+        },
+      ],
+      { cancelable: false }
+    );
+  };
 
   useEffect(() => {
     (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
+      const cameraPermission = await Camera.requestCameraPermissionsAsync();
+      const microphonePermission = await Camera.requestMicrophonePermissionsAsync();
+      const mediaLibraryPermission = await MediaLibrary.requestPermissionsAsync();
+
+      setHasCameraPermission(cameraPermission.status === "granted");
+      setHasMicrophonePermission(microphonePermission.status === "granted");
+      setHasMediaLibraryPermission(mediaLibraryPermission.status === "granted");
     })();
   }, []);
 
-  const handleRecordPress = async () => {
-    if (isRecording) {
-      setIsSaving(true);
-      await cameraRef.current.stopRecording();
+  if (hasCameraPermission === undefined || hasMicrophonePermission === undefined) {
+    return <Text>Requesting permissions...</Text>
+  } else if (!hasCameraPermission) {
+    return <Text>Permission for camera not granted.</Text>
+  }
+ 
+  let recordVideo = () => {
+    setIsRecording(true);
+    let options = {
+      quality: "1080p",
+      mute: false
+    };
+
+    cameraRef.current.recordAsync(options).then((recordedVideo) => {
+      setVideo(recordedVideo);
       setIsRecording(false);
-      setIsSaving(false);
-      setVideoSource(videoRef.current.uri);
-      await saveToCameraRollAsync(videoRef.current.uri);
-    } else {
-      setIsRecording(true);
-      const { uri } = await cameraRef.current.recordAsync();
-      videoRef.current = { uri };
-    }
+    });
   };
 
-  const saveToCameraRollAsync = async (uri) => {
-    const asset = await MediaLibrary.createAssetAsync(uri);
-    await MediaLibrary.createAlbumAsync('Expo Videos', asset, false);
+  let stopRecording = () => {
+    setIsRecording(false);
+    cameraRef.current.stopRecording();
   };
+
+  if (video) {
+    let shareVideo = () => {
+      shareAsync(video.uri).then(() => {
+        setVideo(undefined);
+      });
+    };
+
+    let saveVideo = () => {
+      MediaLibrary.saveToLibraryAsync(video.uri).then(() => {
+        setVideo(undefined);
+      });
+    };
+
+    
+
+    return (
+      <SafeAreaView style={styles.container}>
+        <Video
+          style={styles.video}
+          source={{uri: video.uri}}
+          useNativeControls
+          resizeMode='contain'
+          isLooping
+        />
+        <Button title="Share" onPress={shareVideo} />
+        {hasMediaLibraryPermission ? <Button title="Save" onPress={saveVideo} /> : undefined}
+        <Button title="Discard" onPress={() => setVideo(undefined)} />
+      </SafeAreaView>
+    );
+  }
 
   return (
-    <View style={styles.container}>
-      <Camera
-        style={styles.camera}
-        type={type}
-        ratio="16:9"
-        ref={cameraRef}
-        onCameraReady={() => {
-          videoRef.current = null;
-          setVideoSource(null);
-        }}
-      >
-        <View style={styles.buttonContainer}>
-          {videoSource ? (
-            <Video
-              source={{ uri: videoSource }}
-              style={styles.video}
-              shouldPlay
-              isLooping
-              resizeMode="cover"
-              onPlaybackStatusUpdate={(status) => {
-                if (!status.isPlaying) {
-                  setVideoSource(null);
-                }
-              }}
-            />
-          ) : (
-            <TouchableOpacity
-              style={[styles.button, isRecording ? styles.recordingButton : null]}
-              onPress={handleRecordPress}
-              disabled={isSaving}
-            >
-              <Text style={styles.text}>{isRecording ? 'Stop' : 'Record'}</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </Camera>
-    </View>
+    <Camera style={styles.container} ref={cameraRef} type={Camera.Constants.Type.front}>
+      <View style={styles.buttonContainer}>
+        <Button title={isRecording ? "Stop Recording" : "Record Video"} onPress={isRecording ? stopRecording : recordVideo} />
+        <Button title={'Exit'}
+        onPress={handleExit}
+           />
+
+      </View>
+    </Camera>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    position: 'relative',
-  },
-  camera: {
-    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   buttonContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    top: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  button: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  recordingButton: {
-    backgroundColor: 'red',
-  },
-  text: {
-    fontSize: 18,
+    backgroundColor: "#fff",
+    alignSelf: "flex-end"
   },
   video: {
     flex: 1,
-  },
+    alignSelf: "stretch"
+  }
 });
 
 export default Recorder;
