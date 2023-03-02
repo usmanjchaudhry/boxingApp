@@ -3,6 +3,11 @@ import { Text, View, StyleSheet } from 'react-native';
 import { Button } from 'react-native-elements';
 import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { color } from 'react-native-elements/dist/helpers';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Audio } from 'expo-av';
+
+
 
 
 
@@ -10,13 +15,40 @@ const Timer = ({ }) => {
 
   const navigation = useNavigation();
 
-    const [time, setTime] = useState(10);
+    const [time, setTime] = useState(13);
     const [isThreeMinutes, setIsThreeMinutes] = useState(false);
     const [isRunning, setIsRunning] = useState(false);
     const [isVisible, setIsVisible] = useState(true);
     const [counter, setCounter] = useState(0);
     const [words, setWords] = useState("");
+    const [soundPlayed, setSoundPlayed] = useState(false);
 
+
+
+    const playSound = async () => {
+      setSoundPlayed(true);
+      const sound = new Audio.Sound();
+      try {
+        await sound.loadAsync(require('./boxingBell.mp3'));
+        await sound.playAsync();
+      } catch (error) {
+        console.warn('Error playing sound:', error);
+      }
+
+    };
+
+
+    const playSound2 = async () => {
+      setSoundPlayed(true);
+      const sound = new Audio.Sound();
+      try {
+        await sound.loadAsync(require('./tenSecondWarning.m4a'));
+        await sound.playAsync();
+      } catch (error) {
+        console.warn('Error playing sound:', error);
+      }
+
+    };
   
     useEffect(() => {
       let interval;
@@ -41,7 +73,18 @@ const Timer = ({ }) => {
           setCounter((prevValue) => prevValue + 1);
         }
       }
-    }, [time, isThreeMinutes]);
+      if (time === 11 && !soundPlayed) {
+        playSound2();
+        setSoundPlayed(false);
+
+      }
+      if (time === 1 && !soundPlayed) {
+        playSound();
+        setSoundPlayed(false);
+
+      }
+    }, [time, isThreeMinutes, soundPlayed]);
+  
   
     const handleStartStop = () => {
       setIsRunning((prev) => !prev);
@@ -83,23 +126,31 @@ const Timer = ({ }) => {
       .padStart(2, '0')}:${(time % 60).toString().padStart(2, '0')}`;
   
     return (
-      <View style={[styles.container, { backgroundColor: words === 'Fight' ? '#90EE90' : words === 'Rest' ? 'red' : 'yellow' }]}>
-        <View style={styles.timerContainer}>
-          <Text style={[styles.timerText, words === "Fight" ? styles.fightText : words === "Rest" ? styles.restText : styles.warmupText, time === 0 ? styles.endText : null]}>{words ? words : 'Warmup'}</Text>
-          <Text style={[styles.timerText, time === 0 ? styles.endText : null]}>{formattedTime}</Text>
-        </View>
-        <View style={styles.buttonContainer}>
-          <Button
-            title={isRunning ? 'Pause' : 'Start'}
-            onPress={handleStartStop}
-            buttonStyle={styles.button}
-          />
-          <Button
-            title='Exit'
-            onPress={handleReset}
-            buttonStyle={styles.button}
-          />
+      <View style={[styles.container, { backgroundColor: words === 'Fight' ? '#00A619' : words === 'Rest' ? 'red' : 'black' }]}>
+        
+        <View style={[styles.timerContainer,{backgroundColor: words === 'Fight' ? '#00A619' : words === 'Rest' ? 'red' : 'grey' }]}>
+        <Text style={[styles.timerText, time === 0 ? styles.endText : null]}>{formattedTime}</Text>
+          <Text style={[styles.timer2Text, words === "Fight" ? styles.fightText : words === "Rest" ? styles.restText : styles.warmupText, time === 0 ? styles.endText : null]}>{words ? words : 'Warmup'}</Text>
           <Text style={styles.counterText}>Rounds: {counter}</Text>
+
+        </View>
+        
+        <View style={[styles.buttonContainer,{ backgroundColor: words === 'Fight' ? '#00A619' : words === 'Rest' ? 'red' : 'grey' }]}>
+          <Button
+
+icon={<Icon name={isRunning ? 'pause' : 'play-arrow'} size={50} color="white" />}
+
+            onPress={handleStartStop}
+            buttonStyle={[styles.button,{ backgroundColor: words === 'Fight' ? '#00A619' : words === 'Rest' ? 'red' : 'grey' }]}
+
+            titleStyle={{ color: 'white' }} // add this line
+            />
+          <Button
+            icon={<Icon name="exit-to-app" size={50} color="white" />}
+            onPress={handleReset}
+            buttonStyle={[styles.button,{ backgroundColor: words === 'Fight' ? '#00A619' : words === 'Rest' ? 'red' : 'grey' }]}
+            titleStyle={{ color: 'white' }} // add this line
+            />
         </View>
       </View>
     );
@@ -109,46 +160,79 @@ const Timer = ({ }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   timerContainer: {
     flex: 1,
     justifyContent: 'center',
+    width: 350,
+    alignSelf: 'center',
+    borderRadius: 20, // adjust this value to change the roundness of the edges
+    marginTop: 50,
+    borderWidth:2,
+    borderColor:'white',
+
+
   },
   timerText: {
-    fontSize: 50,
+    fontSize: 120,
     textAlign: 'center',
+    color: 'white'
+  },
+  timer2Text: {
+    fontSize: 80,
+    textAlign: 'center',
+    color: 'white'
+
   },
   warmupText: {
-    color: 'black',
-    backgroundColor: 'yellow',
+    color: 'white',
+    
+
+
   },
   fightText: {
-    color: 'black',
-    backgroundColor: '#90EE90',
+    color: 'white',
   },
   restText: {
-    color: 'black',
-    backgroundColor: 'red'
+    color: 'white',
   },
   endText: {
-    color: 'red',
+    color: 'white',
   },
   buttonContainer: {
-    flex: 1,
     justifyContent: 'center',
+    backgroundColor: 'green',
+    flexDirection: 'row',
+    borderRadius: 20, // adjust this value to change the roundness of the edges
+    width: 350,
+    alignSelf: 'center',
+    marginTop: 20,
+    marginBottom: 20,
+    borderWidth:2,
+    borderColor:'white',
+
+
+
   },
   button: {
-    borderRadius: 20,
+    borderRadius: 100, // Use a high value to make it more round
+    width: 90, // Replace with your desired width
+    height: 90,
     paddingVertical: 10,
     paddingHorizontal: 20,
-    backgroundColor: 'grey',
-    marginVertical: 10,
+    margin:40,
+    borderWidth:2,
+    borderColor:'white',
+    
   },
+
+  
   counterText: {
-    fontSize: 30,
-  },
+    fontSize: 40,
+    textAlign: 'center',
+    color: 'white'  ,
+    marginTop: 20 
+},
 });
 
 

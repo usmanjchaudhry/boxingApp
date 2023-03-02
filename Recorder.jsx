@@ -18,6 +18,46 @@ const Recorder = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [video, setVideo] = useState();
 
+
+  const [time, setTime] = useState(10);
+  const [isThreeMinutes, setIsThreeMinutes] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [counter, setCounter] = useState(0);
+  const [words, setWords] = useState("");
+
+
+
+
+  useEffect(() => {
+    let interval;
+    if (isRunning) {
+      interval = setInterval(() => {
+        setTime((prevTime) => prevTime - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isRunning]);
+
+  useEffect(() => {
+    if (time === 0) {
+      if (isThreeMinutes) {
+        setIsThreeMinutes(false);
+        setTime(60);
+        setWords("Rest");
+      } else {
+        setIsThreeMinutes(true);
+        setTime(180);
+        setWords("Fight");
+        setCounter((prevValue) => prevValue + 1);
+      }
+    }
+  }, [time, isThreeMinutes]);
+
+
+
+
+
   const handleExit = () => {
     Alert.alert(
       'Confirm Exit',
@@ -62,6 +102,7 @@ const Recorder = () => {
  
   let recordVideo = () => {
     setIsRecording(true);
+    setIsRunning((prev) => !prev);
     let options = {
       quality: "1080p",
       mute: false
@@ -75,6 +116,11 @@ const Recorder = () => {
 
   let stopRecording = () => {
     setIsRecording(false);
+    setTime(10);
+    setIsRunning(false);
+    setIsThreeMinutes(false);
+    setWords("");
+
     cameraRef.current.stopRecording();
   };
 
@@ -90,6 +136,8 @@ const Recorder = () => {
         setVideo(undefined);
       });
     };
+
+
 
     
 
@@ -109,9 +157,14 @@ const Recorder = () => {
     );
   }
 
+  const formattedTime = `${Math.floor(time / 60)
+  .toString()
+  .padStart(2, '0')}:${(time % 60).toString().padStart(2, '0')}`;
   return (
     <Camera style={styles.container} ref={cameraRef} type={Camera.Constants.Type.front}>
       <View style={styles.buttonContainer}>
+      <Text style={[styles.timer2Text, words === "Fight" ? styles.fightText : words === "Rest" ? styles.restText : styles.warmupText, time === 0 ? styles.endText : null]}>{words ? words : 'Warmup'}</Text>
+      <Text style={[styles.timerText, time === 0 ? styles.endText : null]}>{formattedTime}</Text>
         <Button title={isRecording ? "Stop Recording" : "Record Video"} onPress={isRecording ? stopRecording : recordVideo} />
         <Button title={'Exit'}
         onPress={handleExit}
@@ -129,9 +182,39 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonContainer: {
-    backgroundColor: "#fff",
-    alignSelf: "flex-end"
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    backgroundColor: 'transparent',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 20,
   },
+  timerText: {
+    position: 'absolute',
+    top: -680,
+    alignSelf: 'center',
+    color: '#fff',
+    fontSize: 40,
+    fontWeight: 'bold',
+  },
+  warmupText: {
+    color: 'black',
+    backgroundColor: 'yellow',
+  },
+  fightText: {
+    color: 'black',
+    backgroundColor: 'green',
+  },
+  restText: {
+    color: 'black',
+    backgroundColor: 'red'
+  },
+  endText: {
+    color: 'red',
+  },
+  
   video: {
     flex: 1,
     alignSelf: "stretch"

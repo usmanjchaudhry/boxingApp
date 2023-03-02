@@ -18,14 +18,14 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator 
-      screenOptions={{
-        headerLeft: () => null // Remove the back button
-      }}
+        screenOptions={{
+          headerLeft: () => null // Remove the back button
+        }}
       >
         <Stack.Screen
           name="Home"
           component={HomeScreen}
-          options={{ title: 'Home Screen' }}
+          options={{ headerShown: false  }}
         />
         <Stack.Screen
           name="Timer"
@@ -53,7 +53,6 @@ export default function App() {
 function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
-      <Text>Home Screen</Text>
       <Button
         title="Go to Timer Screen"
         onPress={() => navigation.navigate('Timer')}
