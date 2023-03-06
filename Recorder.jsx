@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Button, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Button, SafeAreaView } from 'react-native';
 import { useEffect, useState, useRef } from 'react';
 import { Camera } from 'expo-camera';
 import { Video } from 'expo-av';
@@ -6,6 +6,9 @@ import { shareAsync } from 'expo-sharing';
 import * as MediaLibrary from 'expo-media-library';
 import { useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
+import { Audio } from 'expo-av';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
 
 
 
@@ -19,12 +22,41 @@ const Recorder = () => {
   const [video, setVideo] = useState();
 
 
-  const [time, setTime] = useState(10);
+  const [time, setTime] = useState(3);
   const [isThreeMinutes, setIsThreeMinutes] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [counter, setCounter] = useState(0);
   const [words, setWords] = useState("");
+  const [soundPlayed, setSoundPlayed] = useState(false);
+
+
+
+
+
+  const playSound = async () => {
+    setSoundPlayed(true);
+    const sound = new Audio.Sound();
+    try {
+      await sound.loadAsync(require('./boxingBell.mp3'));
+      await sound.playAsync();
+    } catch (error) {
+      console.warn('Error playing sound:', error);
+    }
+
+  };
+
+  const playSound2 = async () => {
+    setSoundPlayed(true);
+    const sound = new Audio.Sound();
+    try {
+      await sound.loadAsync(require('./tenSecondWarning.m4a'));
+      await sound.playAsync();
+    } catch (error) {
+      console.warn('Error playing sound:', error);
+    }
+
+  };
 
 
 
@@ -52,7 +84,17 @@ const Recorder = () => {
         setCounter((prevValue) => prevValue + 1);
       }
     }
-  }, [time, isThreeMinutes]);
+    if (time === 11 && !soundPlayed) {
+      playSound2();
+      setSoundPlayed(false);
+
+    }
+    if (time === 1 && !soundPlayed) {
+      playSound();
+      setSoundPlayed(false);
+
+    }
+  }, [time, isThreeMinutes, soundPlayed]);
 
 
 
@@ -116,7 +158,7 @@ const Recorder = () => {
 
   let stopRecording = () => {
     setIsRecording(false);
-    setTime(10);
+    setTime(3);
     setIsRunning(false);
     setIsThreeMinutes(false);
     setWords("");
@@ -137,6 +179,7 @@ const Recorder = () => {
       });
     };
 
+   
 
 
     
@@ -160,27 +203,77 @@ const Recorder = () => {
   const formattedTime = `${Math.floor(time / 60)
   .toString()
   .padStart(2, '0')}:${(time % 60).toString().padStart(2, '0')}`;
-  return (
-    <Camera style={styles.container} ref={cameraRef} type={Camera.Constants.Type.front}>
-      <View style={styles.buttonContainer}>
-      <Text style={[styles.timer2Text, words === "Fight" ? styles.fightText : words === "Rest" ? styles.restText : styles.warmupText, time === 0 ? styles.endText : null]}>{words ? words : 'Warmup'}</Text>
-      <Text style={[styles.timerText, time === 0 ? styles.endText : null]}>{formattedTime}</Text>
-        <Button title={isRecording ? "Stop Recording" : "Record Video"} onPress={isRecording ? stopRecording : recordVideo} />
-        <Button title={'Exit'}
-        onPress={handleExit}
-           />
 
-      </View>
-    </Camera>
+
+
+  return (
+      <Camera style={styles.container} ref={cameraRef} type={Camera.Constants.Type.front}>
+        <View style={styles.buttonContainer}>
+          <Text style={[styles.timer2Text, words === "Fight" ? styles.fightText : words === "Rest" ? styles.restText : styles.warmupText, time === 0 ? styles.endText : null]}>{words ? words : 'Warm Up'}</Text>
+          <Text style={[styles.timerText, time === 0 ? styles.endText : null]}>{formattedTime}</Text>
+          <Text style={styles.counterText}>Round: {counter}</Text>
+
+  
+          <TouchableOpacity style={styles.icon1} onPress={isRecording ? stopRecording : recordVideo}>
+            <Icon name={isRecording ? 'stop' : 'play-arrow'} size={90} color="white" />
+          </TouchableOpacity>
+  
+          <TouchableOpacity style={styles.icon2} onPress={handleExit}>
+            <Icon name={'exit-to-app'} size={90} color="white" />
+          </TouchableOpacity>
+  
+          <TouchableOpacity style={styles.overlay}>
+            <Icon name="stop" size={3000} color={words === "Fight" ? "rgba(0, 128, 0, 0.3)" : words === "Rest" ? "rgba(255, 0, 0, 0.3)" : "rgba(128, 128, 128, 0.5)"}/>
+          </TouchableOpacity>
+
+        </View>
+      </Camera>
   );
+  
 };
 
 const styles = StyleSheet.create({
+
+
+  overlay: {
+    position: 'absolute',
+    top: -1600,
+    bottom: 0,
+    left: -900,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: -1,
+  },
+
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    
+
+
   },
+  icon1: {
+    borderRadius: 100, // Use a high value to make it more round
+    width: 120, // Replace with your desired width
+    height: 120,
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    margin:20,
+    borderWidth:2,
+    borderColor:'white',
+      },
+      icon2: {
+        borderRadius: 100, // Use a high value to make it more round
+        width: 120, // Replace with your desired width
+        height: 120,
+        paddingVertical: 15,
+        paddingHorizontal: 15,
+        margin:20,
+        borderWidth:2,
+        borderColor:'white',
+          },
   buttonContainer: {
     position: 'absolute',
     bottom: 0,
@@ -196,20 +289,54 @@ const styles = StyleSheet.create({
     top: -680,
     alignSelf: 'center',
     color: '#fff',
-    fontSize: 40,
+    fontSize: 100,
+    fontWeight: 'bold',
+  },
+  timer2Text: {
+    position: 'absolute',
+    top: -550,
+    alignSelf: 'center',
+    color: '#fff',
+    fontSize: 60,
     fontWeight: 'bold',
   },
   warmupText: {
-    color: 'black',
-    backgroundColor: 'yellow',
+    color: 'white',
+    borderWidth:2,
+    borderColor:'white',
+    borderRadius: 20,
+    width: 280, // Replace with your desired width
+    height: 100,
+    paddingVertical: 9,
+    paddingHorizontal: 11,
+    overflow: 'hidden', // add this to round the edges of the background color
+
   },
   fightText: {
-    color: 'black',
+    color: 'white',
     backgroundColor: 'green',
+    borderWidth:2,
+    borderColor:'white',
+    borderRadius: 20,
+    width: 230, // Replace with your desired width
+    height: 100,
+    paddingVertical: 9,
+    paddingHorizontal: 45,
+    overflow: 'hidden', // add this to round the edges of the background color
+
   },
   restText: {
-    color: 'black',
-    backgroundColor: 'red'
+    color: 'white',
+    backgroundColor: 'red',
+    borderWidth:2,
+    borderColor:'white',
+    borderRadius: 20,
+    width: 220, // Replace with your desired width
+    height: 100,
+    paddingVertical: 9,
+    paddingHorizontal: 45,
+    overflow: 'hidden', // add this to round the edges of the background color
+
   },
   endText: {
     color: 'red',
@@ -218,7 +345,15 @@ const styles = StyleSheet.create({
   video: {
     flex: 1,
     alignSelf: "stretch"
-  }
+  },
+  counterText: {
+    position: 'absolute',
+    top: -450,
+    alignSelf: 'center',
+    color: '#fff',
+    fontSize: 50,
+    fontWeight: 'bold',
+},
 });
 
 export default Recorder;

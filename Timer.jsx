@@ -102,7 +102,7 @@ const Timer = ({ }) => {
           {
             text: 'Exit',
             onPress: () => {
-              setTime(10);
+              setTime(13);
               setIsRunning(false);
               setIsThreeMinutes(false);
               setCounter(0);
@@ -138,7 +138,7 @@ const Timer = ({ }) => {
         <View style={[styles.buttonContainer,{ backgroundColor: words === 'Fight' ? '#00A619' : words === 'Rest' ? 'red' : 'grey' }]}>
           <Button
 
-icon={<Icon name={isRunning ? 'pause' : 'play-arrow'} size={50} color="white" />}
+            icon={<Icon name={isRunning ? 'pause' : 'play-arrow'} size={50} color="white" />}
 
             onPress={handleStartStop}
             buttonStyle={[styles.button,{ backgroundColor: words === 'Fight' ? '#00A619' : words === 'Rest' ? 'red' : 'grey' }]}
