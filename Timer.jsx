@@ -15,7 +15,7 @@ const Timer = ({ }) => {
 
   const navigation = useNavigation();
 
-    const [time, setTime] = useState(13);
+    const [time, setTime] = useState(30);
     const [isThreeMinutes, setIsThreeMinutes] = useState(false);
     const [isRunning, setIsRunning] = useState(false);
     const [isVisible, setIsVisible] = useState(true);
@@ -102,7 +102,7 @@ const Timer = ({ }) => {
           {
             text: 'Exit',
             onPress: () => {
-              setTime(13);
+              setTime(30);
               setIsRunning(false);
               setIsThreeMinutes(false);
               setCounter(0);
@@ -138,7 +138,7 @@ const Timer = ({ }) => {
         <View style={[styles.buttonContainer,{ backgroundColor: words === 'Fight' ? '#00A619' : words === 'Rest' ? 'red' : 'grey' }]}>
           <Button
 
-            icon={<Icon name={isRunning ? 'pause' : 'play-arrow'} size={50} color="white" />}
+            icon={<Icon name={isRunning ? 'pause' : 'play-arrow'} size={90} color="white" />}
 
             onPress={handleStartStop}
             buttonStyle={[styles.button,{ backgroundColor: words === 'Fight' ? '#00A619' : words === 'Rest' ? 'red' : 'grey' }]}
@@ -146,7 +146,7 @@ const Timer = ({ }) => {
             titleStyle={{ color: 'white' }} // add this line
             />
           <Button
-            icon={<Icon name="exit-to-app" size={50} color="white" />}
+            icon={<Icon name="exit-to-app" size={90} color="white" />}
             onPress={handleReset}
             buttonStyle={[styles.button,{ backgroundColor: words === 'Fight' ? '#00A619' : words === 'Rest' ? 'red' : 'grey' }]}
             titleStyle={{ color: 'white' }} // add this line
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   timerContainer: {
     flex: 1,
     justifyContent: 'center',
-    width: 350,
+    width: '90%',
     alignSelf: 'center',
     borderRadius: 20, // adjust this value to change the roundness of the edges
     marginTop: 50,
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'green',
     flexDirection: 'row',
     borderRadius: 20, // adjust this value to change the roundness of the edges
-    width: 350,
+    width: '90%',
     alignSelf: 'center',
     marginTop: 20,
     marginBottom: 20,
@@ -216,10 +216,10 @@ const styles = StyleSheet.create({
   },
   button: {
     borderRadius: 100, // Use a high value to make it more round
-    width: 90, // Replace with your desired width
-    height: 90,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    width: 120, // Replace with your desired width
+    height: 120,
+    paddingVertical: 15,
+    paddingHorizontal: 15,
     margin:40,
     borderWidth:2,
     borderColor:'white',

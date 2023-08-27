@@ -22,7 +22,7 @@ const Recorder = () => {
   const [video, setVideo] = useState();
 
 
-  const [time, setTime] = useState(3);
+  const [time, setTime] = useState(30);
   const [isThreeMinutes, setIsThreeMinutes] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
@@ -158,7 +158,7 @@ const Recorder = () => {
 
   let stopRecording = () => {
     setIsRecording(false);
-    setTime(3);
+    setTime(30);
     setIsRunning(false);
     setIsThreeMinutes(false);
     setWords("");
@@ -209,6 +209,11 @@ const Recorder = () => {
   return (
       <Camera style={styles.container} ref={cameraRef} type={Camera.Constants.Type.front}>
         <View style={styles.buttonContainer}>
+
+        <TouchableOpacity style={styles.overlay}>
+            <Icon name="stop" size={'5000%'} color={words === "Fight" ? "rgba(0, 128, 0, 0.3)" : words === "Rest" ? "rgba(255, 0, 0, 0.3)" : "rgba(128, 128, 128, 0.3)"}/>
+          </TouchableOpacity>
+
           <Text style={[styles.timer2Text, words === "Fight" ? styles.fightText : words === "Rest" ? styles.restText : styles.warmupText, time === 0 ? styles.endText : null]}>{words ? words : 'Warm Up'}</Text>
           <Text style={[styles.timerText, time === 0 ? styles.endText : null]}>{formattedTime}</Text>
           <Text style={styles.counterText}>Round: {counter}</Text>
@@ -222,9 +227,7 @@ const Recorder = () => {
             <Icon name={'exit-to-app'} size={90} color="white" />
           </TouchableOpacity>
   
-          <TouchableOpacity style={styles.overlay}>
-            <Icon name="stop" size={3000} color={words === "Fight" ? "rgba(0, 128, 0, 0.3)" : words === "Rest" ? "rgba(255, 0, 0, 0.3)" : "rgba(128, 128, 128, 0.5)"}/>
-          </TouchableOpacity>
+        
 
         </View>
       </Camera>
@@ -237,13 +240,10 @@ const styles = StyleSheet.create({
 
   overlay: {
     position: 'absolute',
-    top: -1600,
-    bottom: 0,
-    left: -900,
-    right: 0,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: -1,
+
   },
 
   container: {
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
   },
   timerText: {
     position: 'absolute',
-    top: -680,
+    top: '-420%',
     alignSelf: 'center',
     color: '#fff',
     fontSize: 100,
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   },
   timer2Text: {
     position: 'absolute',
-    top: -550,
+    top: '-350%',
     alignSelf: 'center',
     color: '#fff',
     fontSize: 60,

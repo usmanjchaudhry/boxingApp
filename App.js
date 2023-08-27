@@ -56,32 +56,24 @@ export default function App() {
 function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
-            <Image source={require('./boxingIcon.png')} style={styles.logo} />
+      <Image source={require('./boxingIcon.png')} style={styles.logo} />
 
       <TouchableOpacity
         style={styles.topHalf}
         onPress={() => navigation.navigate('Timer')}
       >
-        <Button
-          title="Timer"
-          color='white'
-        />
+        <Text style={styles.buttonText}>Timer</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.bottomHalf}
         onPress={() => navigation.navigate('Recorder')}
       >
-        <Button
-          title="Timer + Recorder"
-          color='white'
-          onPress={() => navigation.navigate('Recorder')}
-
-
-        />
+        <Text style={styles.buttonText}>Timer + Recorder</Text>
       </TouchableOpacity>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -100,6 +92,8 @@ const styles = StyleSheet.create({
     height: '10%',
     color:'white',
     borderRadius: 100, // adjust this value to change the roundness of the edges
+    top:'-10%',
+
 
     
 
@@ -112,18 +106,23 @@ const styles = StyleSheet.create({
     width: '80%',
     borderColor: 'white',
     borderWidth:3,
-    marginTop:10,
+    marginTop:'10%',
     height: '10%',
     borderRadius: 100, // adjust this value to change the roundness of the edges
+    top:'-10%'
+
 
   
 
   },
+  buttonText: {
+    color:'white',
+    fontSize: '40%',
+  },
   logo: {
-    width: 250,
-    height: 250,
+    width: '80%',
+    height:'80%',
     resizeMode: 'contain',
-    marginBottom: 50,
-    top: -40
+    top:'-10%'
   },
 });
