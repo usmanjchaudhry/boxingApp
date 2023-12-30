@@ -193,7 +193,7 @@ const Recorder = () => {
           resizeMode='contain'
           isLooping
         />
-        <Button title="Share" onPress={shareVideo} />
+
         {hasMediaLibraryPermission ? <Button title="Save" onPress={saveVideo} /> : undefined}
         <Button title="Discard" onPress={() => setVideo(undefined)} />
       </SafeAreaView>
